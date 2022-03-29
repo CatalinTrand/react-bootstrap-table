@@ -1,5 +1,9 @@
 import { CSSProperties } from 'react';
 
-export const defaultCellStyles: CSSProperties = {
+export const defaultBodyCellStyles: CSSProperties = {
+
+};
+
+export const defaultHeaderCellStyles: CSSProperties = {
 
 };

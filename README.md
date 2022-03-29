@@ -2,7 +2,7 @@
 
 ## Installation
 
-In the project directory, run:
+In your project directory, run:
 
 `npm install react-bootstrap-table`
 
