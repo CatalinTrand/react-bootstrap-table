@@ -1,13 +1,14 @@
 import { ColumnConfig, SortState } from '../types';
+import { CSSProperties } from 'react';
 
-export interface TableBodyCellProps {
-
+export interface TableBodyCellProps<RowDataType> {
+  col: ColumnConfig<RowDataType>,
+  row: RowDataType,
 }
 
 export interface TableHeaderCellProps<RowDataType> {
   colIdx: number,
   col: ColumnConfig<RowDataType>,
-  sortState: SortState,
   handleColSortClick: (colIdx: number) => void,
   handleColFilterClick: (colIdx: number) => void,
 }

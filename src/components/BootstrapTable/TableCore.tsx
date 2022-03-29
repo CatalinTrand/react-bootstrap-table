@@ -1,46 +1,63 @@
 import React, { PropsWithChildren, useEffect, useMemo, useState } from 'react';
 import { Action, FilterState, SortState, TableConfig } from './types';
-import {defaultTableStyles} from './styles';
+import { defaultTableStyles } from './styles';
 import { TableHeaderCell } from './cell/TableHeaderCell';
+import { TableRow } from './row/TableRow';
 
 const DEFAULT_ACTIONS: Action[] = ['read', 'write', 'delete'];
 
-export const TableCore = <DataRowType,>({source, allowedActions = DEFAULT_ACTIONS, columns, extraStyles = {}}: PropsWithChildren<TableConfig<DataRowType>>) => {
+export const TableCore = <RowDataType, >({
+                                           source,
+                                           allowedActions = DEFAULT_ACTIONS,
+                                           columns,
+                                           extraStyles = {}
+                                         }: PropsWithChildren<TableConfig<RowDataType>>) => {
 
-  const [tableData, setTableData] = useState<DataRowType[]>([]);
+  const [tableData, setTableData] = useState<RowDataType[]>([]);
   const [sortState, setSortState] = useState<SortState>({});
   const [filterState, setFilterState] = useState<FilterState>({});
 
-  const sortedFilteredData = useMemo(() => {
+  const sortedFilteredData = useMemo<RowDataType[]>(() => {
     const copy = [...tableData];
-    //handle sorting & filtering
+    //TODO handle sorting & filtering
     return copy;
   }, [tableData, sortState, filterState]);
 
-  const handleColSortClick = (colIdx: number) => {
-
-  }
-
-  const handleColFilterClick = (colIdx: number) => {
-
-  }
-
   useEffect(() => {
-    //fetch data
+    //TODO fetch data
   }, [source]);
 
-  return (
-    <table style={{...defaultTableStyles, ...extraStyles.table ?? {}}} className={'bootstrap-table'}>
-      <thead className={'bootstrap-table-thead'}>
-        <tr className={'bootstrap-table-thead-tr'}>
-          {columns.map((col, idx) =>
-            <TableHeaderCell key={idx} col={col} colIdx={idx} handleColFilterClick={handleColFilterClick} handleColSortClick={handleColSortClick}/>
-          )}
-        </tr>
-      </thead>
-      <tbody>
+  const handleColSortClick = (colIdx: number) => {
+    //TODO
+  };
 
+  const handleColFilterClick = (colIdx: number) => {
+    //TODO
+  };
+
+  return (
+    <table style={{ ...defaultTableStyles, ...extraStyles.table ?? {} }} className={'bootstrap-table'}>
+      <thead className={'bootstrap-table-thead'}>
+      <tr className={'bootstrap-table-thead-tr'}>
+        {columns.map((col, idx) =>
+          <TableHeaderCell<RowDataType>
+            key={idx}
+            col={col}
+            colIdx={idx}
+            handleColFilterClick={handleColFilterClick}
+            handleColSortClick={handleColSortClick}
+          />
+        )}
+      </tr>
+      </thead>
+      <tbody className={'bootstrap-table-tbody'}>
+        {sortedFilteredData.map((row, idx) =>
+          <TableRow
+            key={idx}
+            row={row}
+          />
+        )}
       </tbody>
     </table>
   );
-}
+};

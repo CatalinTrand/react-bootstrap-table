@@ -1,20 +1,20 @@
 import React, { CSSProperties, ReactElement, ReactNode } from 'react';
 
-export interface TableConfig<DataRowType> {
-  source: HttpSource | ControlledSource<DataRowType>,
+export interface TableConfig<RowDataType> {
+  source: HttpSource | ControlledSource<RowDataType>,
   allowedActions?: Action[],
+  columns: ColumnConfig<RowDataType>[],
   extraStyles?: {
     table?: CSSProperties,
     row?: {
       body: CSSProperties,
     },
     cell?: {
-      head: CSSProperties,
-      body: CSSProperties,
+      head?: CSSProperties,
+      body?: CSSProperties,
     },
-    expandableContent?: CSSProperties,
-  }
-  columns: ColumnConfig<DataRowType>[],
+  },
+  ExpandableComponent?: (row: RowDataType) => React.Component
 }
 
 export type HttpSource = {
@@ -24,10 +24,10 @@ export type HttpSource = {
   middleware?: (req: XMLHttpRequest) => XMLHttpRequest,
 }
 
-export interface ControlledSource<DataRowType> {
+export interface ControlledSource<RowDataType> {
   mode: 'controlled',
-  data: DataRowType[],
-  onSave: (_data: DataRowType[]) => void | React.Dispatch<React.SetStateAction<DataRowType[]>>,
+  data: RowDataType[],
+  onSave: (_data: RowDataType[]) => void | React.Dispatch<React.SetStateAction<RowDataType[]>>,
 }
 
 export type Action = 'read' | 'write' | 'delete';
@@ -38,19 +38,19 @@ export type CustomHttpInterface = {
 
 export type HTTP_METHOD = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
-export interface ColumnConfig<DataRowType> {
+export interface ColumnConfig<RowDataType> {
   label: string | ReactNode,
-  field: string | ((row: DataRowType) => ReactNode),
+  field: string | ((row: RowDataType) => ReactNode),
   extraStyle?: CSSProperties,
-  sort?: 'as-text' | 'as-number' | 'as-date' | 'as-boolean' | ((row1: DataRowType, row2: DataRowType) => number),
+  sort?: 'as-text' | 'as-number' | 'as-date' | 'as-boolean' | ((row1: RowDataType, row2: RowDataType) => number),
   filter?: 'as-text' | 'as-number' | 'as-date' | 'as-boolean',
   isEditable?: {
     input:
-        (value: DataRowType, onChange: (val: DataRowType) => void) => ReactElement |
+        (value: RowDataType, onChange: (val: RowDataType) => void) => ReactElement |
         { type: 'text' | 'number' | 'date' | 'checkbox' } |
         { type: 'select', mode?: 'singular' | 'multiple', options: SelectOption[] },
     validatorFn?: (val: any) => boolean,
-    isDisabled?: ((row: DataRowType) => boolean) | boolean,
+    isDisabled?: ((row: RowDataType) => boolean) | boolean,
   }
 }
 
