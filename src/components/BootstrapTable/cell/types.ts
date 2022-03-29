@@ -1,5 +1,4 @@
-import { ColumnConfig, SortState } from '../types';
-import { CSSProperties } from 'react';
+import { ColumnConfig } from '../types';
 
 export interface TableBodyCellProps<RowDataType> {
   col: ColumnConfig<RowDataType>,

@@ -1,16 +1,21 @@
 import React, { PropsWithChildren, useEffect, useMemo, useState } from 'react';
-import { Action, FilterState, SortState, TableConfig } from './types';
+import { ACTION, FilterState, SortState, TableConfig } from './types';
 import { defaultTableStyles } from './styles';
 import { TableHeaderCell } from './cell/TableHeaderCell';
 import { TableRow } from './row/TableRow';
 
-const DEFAULT_ACTIONS: Action[] = ['read', 'write', 'delete'];
+export const DEFAULT_ACTIONS: ACTION[] = [
+  ACTION.READ,
+  ACTION.WRITE,
+  ACTION.DELETE,
+];
 
 export const TableCore = <RowDataType, >({
                                            source,
                                            allowedActions = DEFAULT_ACTIONS,
                                            columns,
-                                           extraStyles = {}
+                                           extraStyles = {},
+                                           ExpandableComponent
                                          }: PropsWithChildren<TableConfig<RowDataType>>) => {
 
   const [tableData, setTableData] = useState<RowDataType[]>([]);
@@ -39,6 +44,7 @@ export const TableCore = <RowDataType, >({
     <table style={{ ...defaultTableStyles, ...extraStyles.table ?? {} }} className={'bootstrap-table'}>
       <thead className={'bootstrap-table-thead'}>
       <tr className={'bootstrap-table-thead-tr'}>
+        {ExpandableComponent && <th className={'bootstrap-table-thead-th-expandable'}/>}
         {columns.map((col, idx) =>
           <TableHeaderCell<RowDataType>
             key={idx}

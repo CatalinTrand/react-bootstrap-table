@@ -1,8 +1,10 @@
-import React, { CSSProperties, ReactElement, ReactNode } from 'react';
+import React, { CSSProperties, ElementType, FC, ReactComponentElement, ReactElement, ReactNode } from 'react';
 
+
+//TODO make RowDataType have 'id' field required
 export interface TableConfig<RowDataType> {
   source: HttpSource | ControlledSource<RowDataType>,
-  allowedActions?: Action[],
+  allowedActions?: ACTION[],
   columns: ColumnConfig<RowDataType>[],
   extraStyles?: {
     table?: CSSProperties,
@@ -14,7 +16,11 @@ export interface TableConfig<RowDataType> {
       body?: CSSProperties,
     },
   },
-  ExpandableComponent?: (row: RowDataType) => React.Component
+  ExpandableComponent?: React.FC<ExpandableComponentProps<RowDataType>>
+}
+
+export interface ExpandableComponentProps<RowDataType> {
+  row: RowDataType,
 }
 
 export type HttpSource = {
@@ -30,8 +36,6 @@ export interface ControlledSource<RowDataType> {
   onSave: (_data: RowDataType[]) => void | React.Dispatch<React.SetStateAction<RowDataType[]>>,
 }
 
-export type Action = 'read' | 'write' | 'delete';
-
 export type CustomHttpInterface = {
   [key in HTTP_METHOD]: (url: string, data: any) => XMLHttpRequest;
 };
@@ -45,8 +49,8 @@ export interface ColumnConfig<RowDataType> {
   sort?: 'as-text' | 'as-number' | 'as-date' | 'as-boolean' | ((row1: RowDataType, row2: RowDataType) => number),
   filter?: 'as-text' | 'as-number' | 'as-date' | 'as-boolean',
   isEditable?: {
-    input:
-        (value: RowDataType, onChange: (val: RowDataType) => void) => ReactElement |
+    inputConfig:
+        (value: RowDataType, onChange: (val: CellValueType) => void, disabled: boolean) => ReactElement |
         { type: 'text' | 'number' | 'date' | 'checkbox' } |
         { type: 'select', mode?: 'singular' | 'multiple', options: SelectOption[] },
     validatorFn?: (val: any) => boolean,
@@ -69,5 +73,13 @@ export type FilterState = {
 
 export type FilterMode = {
   condition: 'contains' | 'le' | 'ge' | 'eq',
-  referenceValue: string | number | boolean,
+  referenceValue: CellValueType,
+}
+
+export type CellValueType = string | number | boolean;
+
+export enum ACTION {
+  READ,
+  WRITE,
+  DELETE,
 }

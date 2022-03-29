@@ -1,18 +1,29 @@
-import React, { PropsWithChildren } from 'react';
+import React, { PropsWithChildren, useState } from 'react';
 import { TableRowProps } from './types';
-import {defaultRowStyles} from './styles';
+import { defaultRowStyles } from './styles';
 import { useTableConfig } from '../hooks/useTableConfig';
 import { TableBodyCell } from '../cell/TableBodyCell';
 
-export const TableRow = <RowDataType,>({row}: PropsWithChildren<TableRowProps<RowDataType>>) => {
+export const TableRow = <RowDataType, >({ row }: PropsWithChildren<TableRowProps<RowDataType>>) => {
 
-  const {columns, ExpandableComponent, extraStyles} = useTableConfig<RowDataType>();
+  const { columns, ExpandableComponent, extraStyles } = useTableConfig<RowDataType>();
+  const [expanded, setExpanded] = useState<boolean>(false);
 
-  //TODO expandable row
-
-  return(
-    <tr style={{...defaultRowStyles, ...(extraStyles?.row?.body ?? {})}} className={'bootstrap-table-tbody-tr'}>
-      {columns?.map((col, idx) => <TableBodyCell key={idx} col={col} row={row}/>)}
-    </tr>
+  return (
+    <>
+      <tr style={{ ...defaultRowStyles, ...(extraStyles?.row?.body ?? {}) }} className={'bootstrap-table-tbody-tr'}>
+        {ExpandableComponent &&
+          <td className={'bootstrap-table-tbody-tr-td-expandable'} onClick={() => setExpanded(exp => !exp)}>
+            {expanded ? '^' : 'v'}
+          </td>
+        }
+        {columns?.map((col, idx) => <TableBodyCell key={idx} col={col} row={row}/>)}
+      </tr>
+      {ExpandableComponent && expanded &&
+        <tr className={'bootstrap-table-tbody-tr-expandable-content'}>
+          <ExpandableComponent row={row}/>
+        </tr>
+      }
+    </>
   );
 };
