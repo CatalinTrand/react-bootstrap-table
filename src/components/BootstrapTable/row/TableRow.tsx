@@ -4,9 +4,9 @@ import { defaultRowStyles } from './styles';
 import { useTableConfig } from '../hooks/useTableConfig';
 import { TableBodyCell } from '../cell/TableBodyCell';
 
-export const TableRow = <RowDataType, >({ row }: PropsWithChildren<TableRowProps<RowDataType>>) => {
+export const TableRow = <T extends IdRequired, >({ row }: PropsWithChildren<TableRowProps<T>>) => {
 
-  const { columns, ExpandableComponent, extraStyles } = useTableConfig<RowDataType>();
+  const { columns, ExpandableComponent, extraStyles } = useTableConfig<T>();
   const [expanded, setExpanded] = useState<boolean>(false);
 
   return (

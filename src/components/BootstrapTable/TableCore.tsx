@@ -1,8 +1,9 @@
 import React, { PropsWithChildren, useEffect, useMemo, useState } from 'react';
-import { ACTION, FilterState, SortState, TableConfig } from './types';
+import { ACTION, HttpRequest, TableConfig } from './types';
 import { defaultTableStyles } from './styles';
 import { TableHeaderCell } from './cell/TableHeaderCell';
 import { TableRow } from './row/TableRow';
+import { useTableConfig } from './hooks/useTableConfig';
 
 export const DEFAULT_ACTIONS: ACTION[] = [
   ACTION.READ,
@@ -10,27 +11,67 @@ export const DEFAULT_ACTIONS: ACTION[] = [
   ACTION.DELETE,
 ];
 
-export const TableCore = <RowDataType, >({
+export const TableCore = <T extends IdRequired,>({
                                            source,
                                            allowedActions = DEFAULT_ACTIONS,
                                            columns,
                                            extraStyles = {},
                                            ExpandableComponent
-                                         }: PropsWithChildren<TableConfig<RowDataType>>) => {
+                                         }: PropsWithChildren<TableConfig<T>>) => {
 
-  const [tableData, setTableData] = useState<RowDataType[]>([]);
-  const [sortState, setSortState] = useState<SortState>({});
-  const [filterState, setFilterState] = useState<FilterState>({});
+  const [tableData, setTableData] = useState<T[]>([]);
 
-  const sortedFilteredData = useMemo<RowDataType[]>(() => {
+  const {
+    setConfig,
+    sortState,
+    setSortState,
+    filterState,
+    setFilterState
+  } = useTableConfig<T>();
+
+  const sortedFilteredData = useMemo<T[]>(() => {
     const copy = [...tableData];
     //TODO handle sorting & filtering
     return copy;
   }, [tableData, sortState, filterState]);
 
   useEffect(() => {
-    //TODO fetch data
+    setConfig({source, allowedActions, columns, extraStyles, ExpandableComponent});
+  }, []);
+
+  useEffect(() => {
+    if(source.mode === 'controlled') {
+      setTableData(source.data);
+    } else {
+      let request: HttpRequest | undefined = source.interface === 'CRUD' ? {
+        url: source.endpoint,
+        options: {
+          method: 'GET'
+        }
+      } : source.interface?.GET(source.endpoint, {});
+
+      if(!request){
+        console.error('No configuration in the CustomHttpInterface for method GET')
+        return;
+      }
+
+      request = source.middleware ? source.middleware(request) : request;
+
+      //TODO
+    }
   }, [source]);
+
+  const handleTableCreate = () => {
+    //TODO
+  }
+
+  const handleTableEdit = () => {
+    //TODO
+  }
+
+  const handleTableDelete = () => {
+    //TODO
+  }
 
   const handleColSortClick = (colIdx: number) => {
     //TODO
@@ -46,7 +87,7 @@ export const TableCore = <RowDataType, >({
       <tr className={'bootstrap-table-thead-tr'}>
         {ExpandableComponent && <th className={'bootstrap-table-thead-th-expandable'}/>}
         {columns.map((col, idx) =>
-          <TableHeaderCell<RowDataType>
+          <TableHeaderCell
             key={idx}
             col={col}
             colIdx={idx}

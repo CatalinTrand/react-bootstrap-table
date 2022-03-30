@@ -1,11 +1,15 @@
-import React, { CSSProperties, ElementType, FC, ReactComponentElement, ReactElement, ReactNode } from 'react';
+import React, { CSSProperties, ReactNode } from 'react';
 
+declare global {
+  interface IdRequired {
+    id: string,
+  }
+}
 
-//TODO make RowDataType have 'id' field required
-export interface TableConfig<RowDataType> {
-  source: HttpSource | ControlledSource<RowDataType>,
+export interface TableConfig<T extends IdRequired> {
+  source: HttpSource | ControlledSource<T>,
   allowedActions?: ACTION[],
-  columns: ColumnConfig<RowDataType>[],
+  columns: ColumnConfig<T>[],
   extraStyles?: {
     table?: CSSProperties,
     row?: {
@@ -16,46 +20,68 @@ export interface TableConfig<RowDataType> {
       body?: CSSProperties,
     },
   },
-  ExpandableComponent?: React.FC<ExpandableComponentProps<RowDataType>>
+  ExpandableComponent?: React.FC<ExpandableComponentProps<T>>
 }
 
-export interface ExpandableComponentProps<RowDataType> {
-  row: RowDataType,
+export interface ExpandableComponentProps<T extends IdRequired> {
+  row: T,
 }
 
 export type HttpSource = {
   mode: 'http',
   endpoint: string,
   interface?: 'CRUD' | CustomHttpInterface,
-  middleware?: (req: XMLHttpRequest) => XMLHttpRequest,
+  middleware?: (req: HttpRequest) => HttpRequest,
 }
 
-export interface ControlledSource<RowDataType> {
+export type HttpRequest = {
+  url: string,
+  options?: RequestInit
+}
+
+export interface ControlledSource<T extends IdRequired> {
   mode: 'controlled',
-  data: RowDataType[],
-  onSave: (_data: RowDataType[]) => void | React.Dispatch<React.SetStateAction<RowDataType[]>>,
+  data: T[],
+  onSave: (_data: T[]) => void | React.Dispatch<React.SetStateAction<T[]>>,
 }
 
 export type CustomHttpInterface = {
-  [key in HTTP_METHOD]: (url: string, data: any) => XMLHttpRequest;
+  [key in HTTP_METHOD]: (url: string, data: any) => HttpRequest;
 };
 
 export type HTTP_METHOD = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
-export interface ColumnConfig<RowDataType> {
+export interface ColumnConfig<T extends IdRequired>{
   label: string | ReactNode,
-  field: string | ((row: RowDataType) => ReactNode),
+  field: string | ((row: T) => ReactNode),
   extraStyle?: CSSProperties,
-  sort?: 'as-text' | 'as-number' | 'as-date' | 'as-boolean' | ((row1: RowDataType, row2: RowDataType) => number),
+  sort?: 'as-text' | 'as-number' | 'as-date' | 'as-boolean' | ((row1: T, row2: T) => number),
   filter?: 'as-text' | 'as-number' | 'as-date' | 'as-boolean',
   isEditable?: {
-    inputConfig:
-        (value: RowDataType, onChange: (val: CellValueType) => void, disabled: boolean) => ReactElement |
-        { type: 'text' | 'number' | 'date' | 'checkbox' } |
-        { type: 'select', mode?: 'singular' | 'multiple', options: SelectOption[] },
+    inputConfig: CustomInput | DefaultInput | SelectInput,
     validatorFn?: (val: any) => boolean,
-    isDisabled?: ((row: RowDataType) => boolean) | boolean,
+    isDisabled?: ((row: T) => boolean) | boolean,
   }
+}
+
+export type CustomInput = {
+  CustomInputComponent: React.FC<CustomInputProps>
+}
+
+export interface CustomInputProps {
+  value: CellValueType,
+  onChange: (val: CellValueType) => void,
+  disabled?: boolean
+}
+
+export type DefaultInput = {
+  type: 'text' | 'number' | 'date' | 'checkbox'
+}
+
+export type SelectInput = {
+  type: 'select',
+  mode?: 'singular' | 'multiple',
+  options: SelectOption[],
 }
 
 export type SelectOption = {

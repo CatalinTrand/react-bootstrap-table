@@ -8,14 +8,14 @@ const sortIcons = {
   'desc': 'fa fa-sort',
 };
 
-export const TableHeaderCell = <RowDataType, >({
+export const TableHeaderCell = <T extends IdRequired, >({
                                                  colIdx,
                                                  col,
                                                  handleColSortClick,
                                                  handleColFilterClick,
-                                               }: PropsWithChildren<TableHeaderCellProps<RowDataType>>) => {
+                                               }: PropsWithChildren<TableHeaderCellProps<T>>) => {
 
-  const {sortState, extraStyles} = useTableConfig<RowDataType>();
+  const {sortState, extraStyles} = useTableConfig<T>();
 
   return (
     <th key={colIdx} className={'bootstrap-table-thead-tr-th'}

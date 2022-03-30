@@ -1,22 +1,24 @@
 import React, { useState } from 'react';
-import { CellValueType, SortState, TableConfig } from '../types';
+import { CellValueType, FilterState, SortState, TableConfig } from '../types';
 import { DEFAULT_ACTIONS } from '../TableCore';
 
-//TODO - finish
-export const useTableConfig = <RowDataType,>() => {
-  const [config, setConfig] = useState<TableConfig<RowDataType>>();
+export const useTableConfig = <T extends IdRequired,>() => {
+  const [config, setConfig] = useState<TableConfig<T>>();
   const [sortState, setSortState] = useState<SortState>({});
+  const [filterState, setFilterState] = useState<FilterState>({});
 
   const submitEdit = (value: CellValueType, field: string, rowIdx: string) => {
-
+    //TODO
   }
 
   return {
     ...config,
-    allowedActions: config?.allowedActions ?? DEFAULT_ACTIONS,
-    sortState,
     setConfig,
+    sortState,
     setSortState,
+    filterState,
+    setFilterState,
     submitEdit,
+    allowedActions: config?.allowedActions ?? DEFAULT_ACTIONS,
   };
 }

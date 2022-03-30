@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Table from './components/BootstrapTable';
 import { ColumnConfig } from './components/BootstrapTable/types';
 
-interface RowData {
+interface MyRowData {
   id: string,
   name: string,
   age: number,
@@ -15,13 +15,14 @@ interface RowData {
   },
 }
 
-const columns: ColumnConfig<RowData>[] = [];
+const columns: ColumnConfig[] = [];
 
-const mockData: RowData[] = [];
+const mockData: MyRowData[] = [];
 
 function App() {
 
-  const [data, setData] = useState<RowData[]>(mockData);
+  const [data, setData] = useState<MyRowData[]>(mockData);
+
   return (
     <div className="App">
       <Table

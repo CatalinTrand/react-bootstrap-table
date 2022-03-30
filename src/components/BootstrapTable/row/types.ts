@@ -1,5 +1,3 @@
-import { CSSProperties } from 'react';
-
-export interface TableRowProps<RowDataType> {
-  row: RowDataType,
+export interface TableRowProps<T extends IdRequired> {
+  row: T,
 }

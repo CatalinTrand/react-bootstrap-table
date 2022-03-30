@@ -2,10 +2,10 @@ import React, { PropsWithChildren, useCallback } from 'react';
 import { TableBodyCellProps } from './types';
 import {defaultBodyCellStyles} from './styles';
 import { useTableConfig } from '../hooks/useTableConfig';
-import { CellValueType, ColumnConfig } from '../types';
+import { ACTION, CellValueType, ColumnConfig, CustomInput, DefaultInput, SelectInput } from '../types';
 
-export const TableBodyCell = <RowDataType,>({col, row}: PropsWithChildren<TableBodyCellProps<RowDataType>>) => {
-  const {extraStyles, submitEdit, allowedActions} = useTableConfig();
+export const TableBodyCell = <T extends IdRequired,>({col, row}: PropsWithChildren<TableBodyCellProps<T>>) => {
+  const {extraStyles, submitEdit, allowedActions} = useTableConfig<T>();
 
   const onCellInputChange = (newVal: CellValueType) => {
     let {validatorFn} = col.isEditable ?? {};
@@ -13,12 +13,11 @@ export const TableBodyCell = <RowDataType,>({col, row}: PropsWithChildren<TableB
     let valid = validatorFn ? validatorFn(newVal) : true;
 
     if(valid && typeof col.field === 'string') {
-      // @ts-ignore
       submitEdit(newVal, col.field, row.id);
     }
   }
 
-  const RenderedCellContent = useCallback(({col,row}: {col: ColumnConfig<RowDataType>, row: any}) => {
+  const RenderedCellContent = useCallback<React.FC<{col: ColumnConfig<T>, row: any}>>(({col,row}) => {
     if(!col.isEditable) {
       switch (typeof col.field) {
         case 'string':
@@ -33,15 +32,21 @@ export const TableBodyCell = <RowDataType,>({col, row}: PropsWithChildren<TableB
         return null;
       }
 
-      if(typeof inputConfig === 'function')
-        return inputConfig(
-          row,
-          onCellInputChange,
-          allowedActions?.includes('write') && (typeof isDisabled === 'function' ? isDisabled(row) : isDisabled ?? false)
-        );
+      let {CustomInputComponent} = inputConfig as CustomInput;
 
-      //TODO fix 'never'
-      if(inputConfig.type !== undefined) {
+      if(CustomInputComponent) {
+        return (
+          <CustomInputComponent
+            value={row}
+            onChange={onCellInputChange}
+            disabled={allowedActions?.includes(ACTION.WRITE) && ((typeof isDisabled === 'function' ? isDisabled(row) : isDisabled) ?? false)}
+          />
+        );
+      }
+
+      inputConfig = inputConfig as DefaultInput | SelectInput;
+
+      if(inputConfig.type) {
         if(inputConfig.type === 'select') {
           return (
             <select multiple={inputConfig.mode === 'multiple'} value={row[col.field]} onChange={(e) => onCellInputChange(e.target.value)}>
@@ -58,7 +63,7 @@ export const TableBodyCell = <RowDataType,>({col, row}: PropsWithChildren<TableB
           );
         }
       } else {
-        console.error('Invalid input configuration for column ' + col.label)
+        console.error('Invalid input configuration for column ' + col.label);
         return null;
       }
 
@@ -66,7 +71,7 @@ export const TableBodyCell = <RowDataType,>({col, row}: PropsWithChildren<TableB
   }, [col, row]);
 
   return (
-    <td style={{...defaultBodyCellStyles, ...(extraStyles?.cell?.body ?? {})}}>
+    <td style={{...defaultBodyCellStyles, ...(extraStyles?.cell?.body ?? {})}} className={'bootstrap-table-tbody-tr-td'}>
       <RenderedCellContent col={col} row={row}/>
     </td>
   );
