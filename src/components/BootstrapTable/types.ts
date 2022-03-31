@@ -56,14 +56,16 @@ export interface ColumnConfig<T extends IdRequired>{
   label: string | ReactNode,
   field: string | ((row: T) => ReactNode),
   extraStyle?: CSSProperties,
-  sort?: 'as-text' | 'as-number' | 'as-date' | 'as-boolean' | ((row1: T, row2: T) => number),
-  filter?: 'as-text' | 'as-number' | 'as-date' | 'as-boolean',
+  sort?: ValueMode | ((row1: T, row2: T) => number),
+  filter?: ValueMode,
   isEditable?: {
     inputConfig: CustomInput | DefaultInput | SelectInput,
     validatorFn?: (val: any) => boolean,
     isDisabled?: ((row: T) => boolean) | boolean,
   }
 }
+
+export type ValueMode = 'as-text' | 'as-number' | 'as-date' | 'as-boolean';
 
 export type CustomInput = {
   CustomInputComponent: React.FC<CustomInputProps>
@@ -105,7 +107,7 @@ export type FilterState = {
 }
 
 export type FilterMode = {
-  condition: 'contains' | 'le' | 'ge' | 'eq',
+  condition: 'le' | 'ge' | 'eq',
   referenceValue: CellValueType,
 }
 
