@@ -3,6 +3,7 @@ import React, { CSSProperties, ReactNode } from 'react';
 declare global {
   interface IdRequired {
     id: string,
+    [key: string]: CellValueType
   }
 }
 
@@ -89,12 +90,18 @@ export type SelectOption = {
   value: any,
 }
 
+export type TableChanges = {
+  [key: string]: {
+    [key: string]: CellValueType
+  }
+}
+
 export type SortState = {
   [key: number]: 'asc' | 'desc'
 }
 
 export type FilterState = {
-  [key: number]: FilterMode
+  [key: string]: FilterMode
 }
 
 export type FilterMode = {
