@@ -3,7 +3,7 @@ import React, { CSSProperties, ReactNode } from 'react';
 declare global {
   interface IdRequired {
     id: string,
-    [key: string]: CellValueType
+    [key: string]: RowValueType
   }
 }
 
@@ -112,6 +112,8 @@ export type FilterMode = {
 }
 
 export type CellValueType = string | number | boolean;
+
+export type RowValueType = CellValueType | {[p: string]: RowValueType}
 
 export enum ACTION {
   READ,

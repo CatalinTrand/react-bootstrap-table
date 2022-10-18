@@ -9,6 +9,8 @@ export const TableRow = <T extends IdRequired, >({ row }: PropsWithChildren<Tabl
   const { columns, ExpandableComponent, extraStyles } = useTableConfig<T>();
   const [expanded, setExpanded] = useState<boolean>(false);
 
+  console.log('get', {columns})
+
   return (
     <>
       <tr style={{ ...defaultRowStyles, ...(extraStyles?.row?.body ?? {}) }} className={'bootstrap-table-tbody-tr'}>
