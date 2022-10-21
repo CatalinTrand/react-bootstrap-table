@@ -1,5 +1,5 @@
 import React, {useContext} from 'react';
-import {CellValueType, FilterState, SortState, TableChanges, TableConfig, TableContext} from '../types';
+import {CellValueType, TableContext} from '../types';
 import {DEFAULT_ACTIONS, defaultConfig} from '../TableCore';
 
 export const MyTableContext = <T extends IdRequired,>() => React.createContext<TableContext<T>>({
