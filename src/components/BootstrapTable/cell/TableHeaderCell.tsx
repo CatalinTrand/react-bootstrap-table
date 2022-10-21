@@ -1,7 +1,7 @@
 import React, {PropsWithChildren, useState} from 'react';
 import {TableHeaderCellProps} from './types';
 import {defaultHeaderCellStyles} from './styles';
-import {useTableConfig} from '../hooks/useTableConfig';
+import {useTableContext} from '../hooks/useTableContext';
 import {FilterMode, ValueMode} from "../types";
 
 const sortIcons = {
@@ -15,7 +15,8 @@ export const TableHeaderCell = <T extends IdRequired, >({
                                                             col,
                                                         }: PropsWithChildren<TableHeaderCellProps<T>>) => {
 
-    const {extraStyles, sortState, setSortState, setFilterState} = useTableConfig<T>();
+    const {config: { extraStyles }, filterState, sortState, setFilterState, setSortState} = useTableContext<T>();
+
     const [modal, setModal] = useState<ValueMode>();
 
     const handleColSortClick = () => {
@@ -40,15 +41,14 @@ export const TableHeaderCell = <T extends IdRequired, >({
     };
 
     const handleFilterApply = (newFilterMode: FilterMode) => {
-        if(newFilterMode)
-            setFilterState(oldFilterState => ({...oldFilterState, [colIdx]: newFilterMode}));
-        else
-            setFilterState(oldFilterState => {
-                let copy = {...oldFilterState};
-               if(copy[colIdx])
-                   delete copy[colIdx];
-               return copy;
-            });
+        if (newFilterMode)
+            setFilterState({...filterState, [colIdx]: newFilterMode});
+        else {
+            let copy = {...filterState};
+            if (copy[colIdx])
+                delete copy[colIdx];
+            setFilterState(copy);
+        }
     }
 
     return (

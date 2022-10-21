@@ -1,16 +1,31 @@
 import React, {PropsWithChildren, useEffect, useMemo, useState} from 'react';
-import {ACTION, ControlledSource, HttpRequest, HttpSource, TableConfig} from './types';
+import {
+    ACTION,
+    ControlledSource,
+    FilterState,
+    HttpRequest,
+    HttpSource,
+    SortState, TableChanges,
+    TableConfig,
+} from './types';
 import {defaultTableStyles} from './styles';
 import {TableHeaderCell} from './cell/TableHeaderCell';
 import {TableRow} from './row/TableRow';
-import {useTableConfig} from './hooks/useTableConfig';
 import {executeHttpRequest, getFilterFnForColumn, getSortingFnForColumn} from './utils';
+import {MyTableContext} from "./hooks/useTableContext";
 
 export const DEFAULT_ACTIONS: ACTION[] = [
     ACTION.READ,
     ACTION.WRITE,
     ACTION.DELETE,
 ];
+
+export const defaultConfig: TableConfig<any> = {
+    source: {
+        data: [], onSave: () => {}, mode: 'controlled'
+    },
+    columns: []
+}
 
 export const TableCore = <T extends IdRequired, >({
                                                       source,
@@ -20,14 +35,14 @@ export const TableCore = <T extends IdRequired, >({
                                                       ExpandableComponent
                                                   }: PropsWithChildren<TableConfig<T>>) => {
 
-    const [tableData, setTableData] = useState<T[]>([]);
 
-    const {
-        setConfig,
-        sortState,
-        filterState,
-        unsavedChanges,
-    } = useTableConfig<T>();
+    const [config, setConfig] = useState<TableConfig<T>>(defaultConfig);
+
+    const [sortState, setSortState] = useState<SortState>({});
+    const [filterState, setFilterState] = useState<FilterState>({});
+    const [changes, setChanges] = useState<TableChanges>({});
+
+    const [tableData, setTableData] = useState<T[]>([]);
 
     useEffect(() => {
         //initialize table
@@ -35,13 +50,16 @@ export const TableCore = <T extends IdRequired, >({
     }, []);
 
     useEffect(() => {
-        getTableData(source).then(() => {});
+        getTableData(source).then(() => {
+        });
     }, [source]);
+
+    const MyTableProvider = useMemo(() => MyTableContext<T>().Provider, [])
 
     const displayedData = useMemo<T[]>(() => {
         //display inputs with the currently edited but unsaved value
         let dataCopy = tableData.map(row => {
-            let change = unsavedChanges[row.id];
+            let change = changes[row.id];
             let newRow = {...row} as IdRequired;
             if (change) {
                 Object.keys(change).forEach(k => newRow[k] = change[k]);
@@ -74,7 +92,7 @@ export const TableCore = <T extends IdRequired, >({
         });
 
         return dataCopy;
-    }, [tableData, unsavedChanges, sortState, filterState]);
+    }, [tableData, changes, sortState, filterState]);
 
     const getTableData = async (source: HttpSource | ControlledSource<T>) => {
         if (source.mode === 'controlled') {
@@ -114,27 +132,30 @@ export const TableCore = <T extends IdRequired, >({
     };
 
     return (
-        <table style={{...defaultTableStyles, ...extraStyles?.table ?? {}}} className={'bootstrap-table'}>
-            <thead className={'bootstrap-table-thead'}>
-            <tr className={'bootstrap-table-thead-tr'}>
-                {ExpandableComponent && <th className={'bootstrap-table-thead-th-expandable'}/>}
-                {columns.map((col, idx) =>
-                    <TableHeaderCell
+        <MyTableProvider
+            value={{changes, setChanges, config, setConfig, sortState, setSortState, filterState, setFilterState}}>
+            <table style={{...defaultTableStyles, ...extraStyles?.table ?? {}}} className={'bootstrap-table'}>
+                <thead className={'bootstrap-table-thead'}>
+                <tr className={'bootstrap-table-thead-tr'}>
+                    {ExpandableComponent && <th className={'bootstrap-table-thead-th-expandable'}/>}
+                    {columns.map((col, idx) =>
+                        <TableHeaderCell
+                            key={idx}
+                            col={col}
+                            colIdx={idx}
+                        />
+                    )}
+                </tr>
+                </thead>
+                <tbody className={'bootstrap-table-tbody'}>
+                {displayedData.map((row, idx) =>
+                    <TableRow
                         key={idx}
-                        col={col}
-                        colIdx={idx}
+                        row={row}
                     />
                 )}
-            </tr>
-            </thead>
-            <tbody className={'bootstrap-table-tbody'}>
-            {displayedData.map((row, idx) =>
-                <TableRow
-                    key={idx}
-                    row={row}
-                />
-            )}
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </MyTableProvider>
     );
 };

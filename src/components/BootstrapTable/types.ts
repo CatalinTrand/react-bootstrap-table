@@ -1,10 +1,21 @@
-import React, { CSSProperties, ReactNode } from 'react';
+import React, {CSSProperties, ReactNode} from 'react';
 
 declare global {
   interface IdRequired {
     id: string,
     [key: string]: RowValueType
   }
+}
+
+export interface TableContext<T extends IdRequired> {
+  config: TableConfig<T>
+  setConfig: (config: TableConfig<T>) => void
+  sortState: SortState
+  setSortState: (sortState: SortState) => void
+  filterState: FilterState
+  setFilterState: (filterState: FilterState) => void
+  changes: TableChanges
+  setChanges: (changes: TableChanges) => void
 }
 
 export interface TableConfig<T extends IdRequired> {

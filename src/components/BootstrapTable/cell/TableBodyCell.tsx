@@ -1,11 +1,11 @@
 import React, { PropsWithChildren, useCallback } from 'react';
 import { TableBodyCellProps } from './types';
 import {defaultBodyCellStyles} from './styles';
-import { useTableConfig } from '../hooks/useTableConfig';
+import { useTableContext } from '../hooks/useTableContext';
 import { ACTION, CellValueType, ColumnConfig, CustomInput, DefaultInput, SelectInput } from '../types';
 
 export const TableBodyCell = <T extends IdRequired,>({col, row}: PropsWithChildren<TableBodyCellProps<T>>) => {
-  const {extraStyles, submitEdit, allowedActions} = useTableConfig<T>();
+  const {config: { extraStyles }, submitEdit, allowedActions} = useTableContext<T>();
 
   const onCellInputChange = (newVal: CellValueType) => {
     let {validatorFn} = col.isEditable ?? {};

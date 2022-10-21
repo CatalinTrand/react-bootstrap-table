@@ -1,15 +1,13 @@
 import React, { PropsWithChildren, useState } from 'react';
 import { TableRowProps } from './types';
 import { defaultRowStyles } from './styles';
-import { useTableConfig } from '../hooks/useTableConfig';
+import { useTableContext } from '../hooks/useTableContext';
 import { TableBodyCell } from '../cell/TableBodyCell';
 
 export const TableRow = <T extends IdRequired, >({ row }: PropsWithChildren<TableRowProps<T>>) => {
 
-  const { columns, ExpandableComponent, extraStyles } = useTableConfig<T>();
+  const { config: { columns, ExpandableComponent, extraStyles } } = useTableContext<T>();
   const [expanded, setExpanded] = useState<boolean>(false);
-
-  console.log('get', {columns})
 
   return (
     <>
